@@ -212,3 +212,9 @@ class EnsembleRewardModel(nn.Module):
     if self.reward_ensemble_per_transition_ensemble:
       rewards = rewards.unsqueeze(0).repeat(self.ensemble_size,1,1,1) #tile for number of ensembles: [Ensemble_size (R_model),Ensemble_size (t_model),batch_size, 1]
     return F.mse_loss(r_hat, rewards) #check if this means correctly over reward ensemble dim
+
+  def reset_parameters(self):
+    self.fc1 = EnsembleDenseLayer(self.state_size, self.hidden_size, self.ensemble_size, non_linearity=self.non_linearity)
+    self.fc2 = EnsembleDenseLayer(self.hidden_size, self.hidden_size, self.ensemble_size, non_linearity=self.non_linearity)
+    self.fc3 = EnsembleDenseLayer(self.hidden_size, 1, self.ensemble_size, non_linearity="linear")
+    self.to(self.device)
