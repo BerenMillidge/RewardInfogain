@@ -47,15 +47,19 @@ class Logger(object):
         self.log("Episode time {:.2f}".format(time))
 
     def log_stats(self, stats):
-        reward_stats, info_stats = stats
+        reward_stats, info_stats,reward_info_stats = stats
         self.metrics["reward_stats"].append(reward_stats)
         self.metrics["info_stats"].append(info_stats)
+        self.metrics["reward_info_stats"].append(reward_info_stats)
         for key in reward_stats:
             reward_stats[key] = "{:.2f}".format(reward_stats[key])
         for key in info_stats:
             info_stats[key] = "{:.2f}".format(info_stats[key])
+        for key in reward_info_stats:
+            reward_info_stats[key] = "{:.2f}".format(info_stats[key])
         self.log("Reward stats:\n {}".format(pprint.pformat(reward_stats)))
         self.log("Information gain stats:\n {}".format(pprint.pformat(info_stats)))
+        self.log("Reward Information gain stats:\n {}".format(pprint.pformat(reward_info_stats)))
 
     def save(self):
         self._save_json(self.metrics_path, self.metrics)
@@ -80,6 +84,7 @@ class Logger(object):
             "times": [],
             "reward_stats": [],
             "info_stats": [],
+            "reward_info_stats": [],
             "coverage": [],
         }
 

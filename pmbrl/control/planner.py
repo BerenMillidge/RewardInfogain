@@ -20,6 +20,7 @@ class Planner(nn.Module):
         top_candidates,
         use_reward=True,
         use_exploration=True,
+        use_reward_info_gain=False,
         use_mean=False,
         expl_scale=1.0,
         reward_scale=1.0,
@@ -39,6 +40,7 @@ class Planner(nn.Module):
 
         self.use_reward = use_reward
         self.use_exploration = use_exploration
+        self.use_reward_info_gain = use_reward_info_gain
         self.use_mean = use_mean
         self.expl_scale = expl_scale
         self.reward_scale = reward_scale
@@ -55,6 +57,7 @@ class Planner(nn.Module):
 
         self.trial_rewards = []
         self.trial_bonuses = []
+        self.trial_reward_info_gains = []
         self.to(device)
 
     def forward(self, state):
@@ -84,17 +87,30 @@ class Planner(nn.Module):
                 self.trial_bonuses.append(expl_bonus)
 
             if self.use_reward:
-                _states = states.view(-1, state_size)
+                if self.reward_model.ensemble_reward_model:
+                    _states = states.view(self.ensemble_size, -1, self.state_size)
+                else:
+                    _states = states.view(-1, state_size)
                 _actions = actions.unsqueeze(0).repeat(self.ensemble_size, 1, 1, 1)
                 _actions = _actions.view(-1, self.action_size)
                 rewards = self.reward_model(_states, _actions)
                 rewards = rewards * self.reward_scale
-                rewards = rewards.view(
+                self.rewards = rewards.view(
                     self.plan_horizon, self.ensemble_size, self.n_candidates
                 )
-                rewards = rewards.mean(dim=1).sum(dim=0)
+                rewards = self.rewards.mean(dim=1).sum(dim=0)
                 returns += rewards
                 self.trial_rewards.append(rewards)
+
+            if self.use_reward_info_gain:
+                self.rewards = self.rewards.unsqueeze(3)
+                reward_info_gain = torch.zeros([self.plan_horizon, self.n_candidates]).to(self.device)
+                for t in range(self.plan_horizon):
+                  reward_info_gain[t,:] = self.measure.entropy_of_average(self.rewards[t,:,:])
+                #print("reward_info_gain: ", torch.sum(reward_info_gain,dim=0))
+                reward_info_gain = torch.sum(reward_info_gain,dim=0)
+                returns += reward_info_gain
+                self.trial_reward_info_gains.append(reward_info_gain)
 
             action_mean, action_std_dev = self._fit_gaussian(actions, returns)
 
@@ -148,9 +164,14 @@ class Planner(nn.Module):
             info_stats = self._create_stats(self.trial_bonuses)
         else:
             info_stats = {}
+        if self.use_reward_info_gain:
+            reward_info_stats = self._create_stats(self.trial_reward_info_gains)
+        else:
+            reward_info_stats = {}
         self.trial_rewards = []
         self.trial_bonuses = []
-        return reward_stats, info_stats
+        self.trial_reward_info_gains = []
+        return reward_stats, info_stats,reward_info_stats
 
     def _create_stats(self, arr):
         tensor = torch.stack(arr)
@@ -161,4 +182,3 @@ class Planner(nn.Module):
             "mean": tensor.mean().item(),
             "std": tensor.std().item(),
         }
-
