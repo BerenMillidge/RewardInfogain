@@ -43,6 +43,102 @@ for s in range(seeds):
     )
     print(final_call, file=output_file)
 
+for s in range(seeds):
+    log_path = results_save_base +"/reward_only_ensemble_model"
+    spath = save_path +"/reward_only/" + str(s)
+    final_call = (
+    f"{base_call} "
+    f" --use_reward True"
+    f" --use_exploration False"
+    f" --use_ensemble_reward_model True"
+    f" --save_path {spath} "
+    f"--logdir {log_path} "
+    )
+    print(final_call, file=output_file)
+
+for s in range(seeds):
+    log_path = results_save_base +"/exploration_only_ensemble_model"
+    spath = save_path +"/exploration_only/" + str(s)
+    final_call = (
+    f"{base_call} "
+    f" --use_reward False"
+    f" --use_exploration True"
+    f" --use_ensemble_reward_model True"
+    f" --save_path {spath} "
+    f"--logdir {log_path} "
+    )
+    print(final_call, file=output_file)
+
+for s in range(seeds):
+    log_path = results_save_base +"/exploration_reward_ensemble_model"
+    spath = save_path +"/exploration_reward/" + str(s)
+    final_call = (
+    f"{base_call} "
+    f" --use_reward True"
+    f" --use_exploration True"
+    f" --use_ensemble_reward_model True"
+    f" --save_path {spath} "
+    f"--logdir {log_path} "
+    )
+    print(final_call, file=output_file)
+
+for s in range(seeds):
+    log_path = results_save_base +"/reward_info_gain_only"
+    spath = save_path +"/reward_only/" + str(s)
+    final_call = (
+    f"{base_call} "
+    f" --use_reward False"
+    f" --use_exploration False"
+    f" --use_reward_info_gain True"
+    f" --use_ensemble_reward_model True"
+    f" --save_path {spath} "
+    f"--logdir {log_path} "
+    )
+    print(final_call, file=output_file)
+
+for s in range(seeds):
+    log_path = results_save_base +"/reward_info_gain_plus_exploration"
+    spath = save_path +"/exploration_only/" + str(s)
+    final_call = (
+    f"{base_call} "
+    f" --use_reward False"
+    f" --use_exploration True"
+    f" --use_reward_info_gain True"
+    f" --use_ensemble_reward_model True"
+    f" --save_path {spath} "
+    f"--logdir {log_path} "
+    )
+    print(final_call, file=output_file)
+
+for s in range(seeds):
+    log_path = results_save_base +"/reward_plus_reward_info_gain"
+    spath = save_path +"/exploration_reward/" + str(s)
+    final_call = (
+    f"{base_call} "
+    f" --use_reward True"
+    f" --use_exploration False"
+    f" --use_reward_info_gain True"
+    f" --use_ensemble_reward_model True"
+    f" --save_path {spath} "
+    f"--logdir {log_path} "
+    )
+    print(final_call, file=output_file)
+
+for s in range(seeds):
+    log_path = results_save_base +"/reward_plus_exploration_plus_reward_info_gain"
+    spath = save_path +"/exploration_reward/" + str(s)
+    final_call = (
+    f"{base_call} "
+    f" --use_reward True"
+    f" --use_exploration True"
+    f" --use_reward_info_gain True"
+    f" --use_ensemble_reward_model True"
+    f" --save_path {spath} "
+    f"--logdir {log_path} "
+    )
+    print(final_call, file=output_file)
+
+
 
 print("Experiment file genereated")
 output_file.close()
