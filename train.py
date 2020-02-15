@@ -62,9 +62,10 @@ def main(args):
         normalizer,
         device=DEVICE,
     )
-    reward_model = RewardModel(
-        state_size + action_size, args.hidden_size, device=DEVICE
-    )
+    if args.use_ensemble_reward_model:
+        reward_model = EnsembleRewardModel(state_size, args.hidden_size, args.ensemble_size).to(DEVICE)
+    else:
+        reward_model = RewardModel(state_size + action_size, args.hidden_size, device=DEVICE)
     trainer = Trainer(
         ensemble,
         reward_model,
@@ -88,6 +89,7 @@ def main(args):
         top_candidates=args.top_candidates,
         use_reward=args.use_reward,
         use_exploration=args.use_exploration,
+        use_reward_info_gain = args.use_reward_info_gain,
         use_mean=args.use_mean,
         expl_scale=args.expl_scale,
         reward_scale=args.reward_scale,
