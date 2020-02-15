@@ -184,9 +184,9 @@ class EnsembleRewardModel(nn.Module):
     self.ensemble_reward_model = True
     self.device=  device
 
-    self.fc1 = EnsembleDenseLayer(self.state_size, self.hidden_size, self.ensemble_size, non_linearity=self.non_linearity)
-    self.fc2 = EnsembleDenseLayer(self.hidden_size, self.hidden_size, self.ensemble_size, non_linearity=self.non_linearity)
-    self.fc3 = EnsembleDenseLayer(self.hidden_size, 1, self.ensemble_size, non_linearity="linear")
+    self.fc1 = EnsembleDenseLayer(self.state_size, self.hidden_size, self.ensemble_size, act_fn=self.non_linearity)
+    self.fc2 = EnsembleDenseLayer(self.hidden_size, self.hidden_size, self.ensemble_size, act_fn=self.non_linearity)
+    self.fc3 = EnsembleDenseLayer(self.hidden_size, 1, self.ensemble_size, act_fn="linear")
 
     self.reward_ensemble_per_transition_ensemble = reward_ensemble_per_transition_ensemble
 
@@ -214,7 +214,7 @@ class EnsembleRewardModel(nn.Module):
     return F.mse_loss(r_hat, rewards) #check if this means correctly over reward ensemble dim
 
   def reset_parameters(self):
-    self.fc1 = EnsembleDenseLayer(self.state_size, self.hidden_size, self.ensemble_size, non_linearity=self.non_linearity)
-    self.fc2 = EnsembleDenseLayer(self.hidden_size, self.hidden_size, self.ensemble_size, non_linearity=self.non_linearity)
-    self.fc3 = EnsembleDenseLayer(self.hidden_size, 1, self.ensemble_size, non_linearity="linear")
+    self.fc1 = EnsembleDenseLayer(self.state_size, self.hidden_size, self.ensemble_size, act_fn=self.non_linearity)
+    self.fc2 = EnsembleDenseLayer(self.hidden_size, self.hidden_size, self.ensemble_size, act_fn=self.non_linearity)
+    self.fc3 = EnsembleDenseLayer(self.hidden_size, 1, self.ensemble_size, act_fn="linear")
     self.to(self.device)
